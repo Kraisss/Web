@@ -1,0 +1,164 @@
+﻿
+@{
+    ViewData["Title"] = "ProfileAdmin";
+    Layout = "_UserLayout";
+}
+
+@model webtrades.Models.AdminProfileModel
+    <style>
+        @@font-face {
+            font-family: 'FontAwesome';
+            src: url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2'), url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff') format('woff'), url('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/fonts/fontawesome-webfont.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal
+        }
+
+        .glyphicon {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale
+        }
+
+        .glyphicon-chevron-right:before {
+            content: "\f054";
+        }
+
+        .glyphicon-chevron-left:before {
+            content: "\f053";
+        }
+    </style>
+
+    <div class="text-center">
+        <p class="h2">Профиль: @ViewBag.login</p>
+        <p class="h3">Роль: @ViewBag.role</p>
+        @*<table class="table">
+            <tr><th><a asp-controller="User" asp-action="Profile" asp-route-sortState="@ViewBag.LoginSort">Логин</a></th>
+                <th><a asp-controller="User" asp-action="Profile" asp-route-sortState="@ViewBag.LevelSort">Уровень</a></th>
+            </tr>
+            @foreach (Person ipa in Model)
+            {
+                <tr><td>@ipa.Login</td><td>@ipa.Level</td></tr>
+            }
+        </table>*@
+        <h1>Список пользователей</h1>
+        <form method="get">
+            <div class="form-inline">
+                <label>Логин: </label>
+                <input name="name" value="@Model.FilterViewModel.SelectedName" class="form-control" />
+
+                @*<label>Компания: </label>
+                <select name="company" asp-items="Model.FilterViewModel.Companies" class="form-control"></select>*@
+
+                <input type="submit" value="Фильтр" class="btn btn-outline-dark" />
+            </div>
+        </form>
+
+        <table class="table">
+            <tr>
+                <th>
+                    <a asp-action="Profile"
+                       asp-controller="User"
+                       asp-route-sortState="@(Model.SortViewModel.LoginSort)"
+                       asp-route-name="@(Model.FilterViewModel.SelectedName)">Логин</a>
+                </th>
+                <th>
+                    <a asp-action="Profile"
+                       asp-controller="User" asp-route-sortState="@(Model.SortViewModel.LevelSort)"
+                       asp-route-name="@(Model.FilterViewModel.SelectedName)">Уровень</a>
+                </th>
+                @*<th>
+                    <a asp-action="Profile"
+                       asp-controller="User" asp-route-sortState="@(Model.SortViewModel.CompanySort)"
+                       asp-route-name="@(Model.FilterViewModel.SelectedName)">Компания</a>
+                </th>*@
+                <th>Доступ</th>
+            </tr>
+            @foreach (Person u in Model.Users)
+             {
+                
+                <tr><td>@u.Login</td><td>@u.Level</td>
+                <td>
+                    @if(u.Level==1){<a asp-action="LevelChange"
+                       asp-controller="User"
+                    asp-route-name="@(Model.FilterViewModel.SelectedName)"
+               asp-route-sortState="@(Model.SortViewModel.Current)"
+                                   asp-route-page="@(Model.PageViewModel.PageNumber)"
+                                       asp-route-pers=@u.Login
+               class="btn  btn-outline-danger">Заблокировать</a> }
+                else
+                {<a asp-action="LevelChange"
+                       asp-controller="User"
+                    asp-route-name="@(Model.FilterViewModel.SelectedName)"
+               asp-route-sortState="@(Model.SortViewModel.Current)"
+                    asp-route-page="@(Model.PageViewModel.PageNumber)"
+                    asp-route-pers=@u.Login
+               class="btn  btn-outline-success">Разблокировать</a>}
+                </td>
+            </tr>
+             
+             }
+        </table>
+        @if (Model.PageViewModel.HasPreviousPage)
+        {
+            <a asp-action="Profile"
+                       asp-controller="User"
+               asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
+               asp-route-name="@(Model.FilterViewModel.SelectedName)"
+               asp-route-sortState="@(Model.SortViewModel.Current)"
+               class="btn  btn-outline-dark">
+                <i class="glyphicon glyphicon-chevron-left"></i>
+                Назад
+            </a>
+        }
+        @if (Model.PageViewModel.HasNextPage)
+        {
+            <a asp-action="Profile"
+                       asp-controller="User"
+               asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
+               asp-route-name="@(Model.FilterViewModel.SelectedName)"
+               asp-route-sortState="@(Model.SortViewModel.Current)"
+               class="btn btn-outline-dark">
+                Вперед
+                <i class="glyphicon glyphicon-chevron-right"></i>
+            </a>
+        }
+        @*<p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
+    </div>
+@section Header {
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebTrades</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    @*<li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                    </li>*@
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @ViewBag.login
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="Profile">Профиль</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-area="" asp-controller="LoginScreen" asp-action="Logout">Выход</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+}
+
+
+
+

@@ -1,0 +1,174 @@
+﻿@model webtrades.Models.HomeModel
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_UserLayout";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <div class="btn-group">
+        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Товары
+        </button>
+        <div class="dropdown-menu">
+            @foreach (Item u in Model.items)
+            {
+                <a class="dropdown-item" asp-controller="Home" asp-action="Index" asp-route-item=@u.Name> @u.Name</a>
+            }
+        </div>
+    </div>
+    @if (Model.itemchoosed != null)
+    {
+        <h3>@Model.itemchoosed.Name</h3>
+        <h4>Курс: @Model.itemchoosed.ExchangeRate</h4>
+        @if (Model.person.role.Name != "Admin")
+        {
+            <h4>Ваш баланс: @Model.personAccount.ItemQuantity</h4>
+            @if(ViewBag.msg!=null)
+            {
+                <b style="color:red">@ViewBag.msg</b>
+            }
+            <form asp-controller="Home" asp-anti-forgery="true">
+                <div class="validation" asp-validation-summary="ModelOnly"></div>
+                <div>
+                    <div class="form-group">
+                        <label>Введите количество товара</label><br />
+                        <input type="text" asp-for="Amount"
+                               pattern="[0-9]+([,][0-9]+)?" step="0.01"
+                               title="Введите количество, если число неполное, разделите его запятой. ">
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" asp-action="Buy" asp-route-item="@(Model.itemchoosed.Name)" asp-route-login="@(Model.person.Login)" value="Купить" class="btn btn-primary" />
+                        <input type="submit" asp-action="Sell" asp-route-item="@(Model.itemchoosed.Name)" asp-route-login="@(Model.person.Login)" value="Продать" class="btn btn-success" />
+                    </div>
+                </div>
+                @*<div>
+                       @foreach (ExchangeRateHistory erh in Model.History)
+                       {  <p>@erh.ExchangeRateChange</p>
+                            <p>@erh.DateOfChange</p>
+                       }
+                    </div>*@
+
+            </form>
+        }
+        <div class="container">
+            <canvas id="myChart"></canvas>
+        </div>
+        <script>
+                let myChart = document.getElementById('myChart').getContext('2d');
+                @*var first =@Model.History[0].ExchangeRateChange;
+                var firstf = "@Model.History[0].DateOfChange";
+                var second =@Model.History[1].ExchangeRateChange;
+                var secondf = "@Model.History[1].DateOfChange";*@
+                var arr = @Html.Raw(Json.Serialize(ViewBag.rates));
+                var arrs = @Html.Raw(Json.Serialize(ViewBag.dates));
+                @*arr.push(@Math.Round(Model.History[0].ExchangeRateChange));
+                arr.push(@Math.Round(Model.History[1].ExchangeRateChange));
+                arr.push(@Math.Round(Model.History[2].ExchangeRateChange));
+                arr.push(@Math.Round(Model.History[3].ExchangeRateChange));
+                arr.push(@Math.Round(Model.History[4].ExchangeRateChange));
+                arrs.push("@Model.History[0].DateOfChange");
+                arrs.push("@Model.History[1].DateOfChange");
+                arrs.push("@Model.History[2].DateOfChange");
+                arrs.push("@Model.History[3].DateOfChange");
+                arrs.push("@Model.History[4].DateOfChange");*@
+                var name="@Model.itemchoosed.Name";
+
+                @*var third = @Model.History[2].ExchangeRateChange;
+                var thirdf = "@Model.History[2].DateOfChange";
+                var fourth = @Model.History[3].ExchangeRateChange;
+                var fourthf = "@Model.History[3].DateOfChange";
+                var fifth = @Model.History[4].ExchangeRateChange;
+                var fifthf = "@Model.History[4].DateOfChange";
+                var name = "@Model.itemchoosed.Name";*@
+                let lineChart = new Chart(myChart, {
+                type: 'line',
+                    data: {
+                        labels: arrs,
+                        datasets: [{
+                            label: name,
+                            data: arr,
+                         lineTension: 0,
+                         fill: false,
+                         borderColor: 'black',
+                         backgroundColor: 'transparent',
+
+                         pointBorderColor: 'black',
+                         pointBackgroundColor: 'rgba(255,150,0,0.5)',
+                         pointRadius: 3,
+                         pointHoverRadius: 10,
+                         pointHitRadius: 30,
+                         pointBorderWidth: 2,
+                         pointStyle: 'rectRounded'
+                     }]
+                 },
+                 options: {
+                     legend: {
+                         display: true,
+                         position: 'top',
+                         labels: {
+                             boxWidth: 80,
+                             fontColor: 'black'
+                         }
+                     }
+                 }
+            });
+        </script>
+        @*<div class="form-group">
+                <label>Введите сумму</label><br />
+                <input type="text" asp-for="Amount"
+                       pattern="[0-9]+([,][0-9]+)?" step="0.01"
+                       title="Введите сумму, если число неполное, разделите его запятой. ">
+            </div>
+            <a asp-action="Buy"
+               asp-controller="Home"
+               asp-route-model=@Model
+               class="btn  btn-primary">Купить</a>
+            <a asp-action="Sell"
+               asp-controller="Home"
+               asp-route-model="@(Model)"
+               class="btn  btn-success">Продать</a>*@
+    }
+</div>
+@section Header {
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebTrades</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    @*<li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>*@
+                    @if (Model.person.role.Name != "Admin")
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Баланс: @Model.person.PersonalAccount
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="AddWithdrawFunds">Пополнить/вывести</a>
+                            </div>
+                        </li>
+                    }
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @Model.person.Login
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" asp-area="" asp-controller="User" asp-action="Profile">Профиль</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-area="" asp-controller="LoginScreen" asp-action="Logout">Выход</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+}
